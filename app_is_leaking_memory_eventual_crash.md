@@ -15,12 +15,17 @@ Next, lets run the webapi (dotnet run) and before hitting the above URL that wil
 
 The output should be similar to the below:
 
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/counterlow.png)
 
+Here we can see that right after startup, the managed heap memory is 4MB. 
 
-Now, let's hit the URL (http://localhost:5000/api/diagscenario/memleak/100000)
+Now, let's hit the URL (http://localhost:5000/api/diagscenario/memleak/200000)
 
 Re-run the dotnet-counters command. We should see an increase in memory usage as shown below:
 
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/counterhigh.png)
+
+Memory has now grown to around 265MB. 
 
 At this point, we can safely say that memory is leaking (or at the very least is growing and doesn't seem to come back down once request is finished). The next step is now to run a collection tool that can help us collect the right data for memory analysis. 
 
