@@ -19,7 +19,7 @@ In the .NET full/Windows world, we have a myriad of performance counters that ca
 Please note, the dotnet-trace tool is version independent but as of right now (preview 5) it requires the 2.1 runtime to be installed to work. This will be fixed moving forward.
 
 
-####dotnet-dump
+#### dotnet-dump
 In order to generate core dumps for .net core apps, you can use the dotnet-dump tool. To install the tool, run the following command:
 
 `dotnet tool install --global dotnet-dump --version 1.0.3-preview5.19228.1 --add-source https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json`
@@ -27,7 +27,7 @@ In order to generate core dumps for .net core apps, you can use the dotnet-dump 
 Please note, the dotnet-trace tool is version independent but as of right now (preview 5) it requires the 2.1 runtime to be installed to work. This will be fixed moving forward.
 
 
-####dotnet-symbol
+#### dotnet-symbol
 In order to debug core dumps, the correct symbols need to be available. The dotnet-symbol tool allows you to point to a core dump and it will automatically download the symbols for you. To install the tool, run:
 
 `dotnet tool install -g dotnet-symbol`
