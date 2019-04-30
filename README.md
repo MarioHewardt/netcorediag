@@ -22,7 +22,7 @@ Please note that you have to be using at least preview 5 for most of the capabil
 
 ### [Scenario - App is leaking memory (eventual crash)](https://github.com/MarioHewardt/netcorediag/blob/master/app_is_leaking_memory_eventual_crash.md)
 
-### Scenario - App is running slow (due to high CPU)
+### [Scenario - App is running slow (due to high CPU)](https://github.com/MarioHEwardt/netcorediag/blob/master/app_running_slow_highcpu.md)
 
 ### Scenario - App is running slow (due to slow dependency)
 
