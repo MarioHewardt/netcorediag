@@ -60,11 +60,11 @@ The (partial) output can be seen below:
 
 Here we can see that we have quite a few strings laying around (as well as instances of Customer and Customer[]). We can now use the gcroot command on one of the string instances to see how/why the object is rooted:
 
-![alt text](C:\Workzone\netcorediag\gcroot.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/gcroot.png)
 
 The string instance appears to be rooted from top level Processor object which in turn references a cache. We can continue dumping out objects to see how much the cache is holding on to:
 
-![alt text](C:\Workzone\netcorediag\cache.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cache.png)
 
 From here we can now try and back-track (from code) why the cache seems to be growing in an unbound fashion. 
 
