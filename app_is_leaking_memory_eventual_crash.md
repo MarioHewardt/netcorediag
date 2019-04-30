@@ -27,6 +27,11 @@ Re-run the dotnet-counters command. We should see an increase in memory usage as
 
 Memory has now grown to around 265MB. 
 
+Note that this shows all the counters. If you want to specify individual counters please use the System.Private[counter1, counter2,...] syntax. For example, to display just the gc-heap-counter, use:
+
+`dotnet-counters monitor System.Runtime[gc-heap-size] --refresh-interval 1 -p 4923`
+
+
 At this point, we can safely say that memory is leaking (or at the very least is growing and doesn't seem to come back down once request is finished). The next step is now to run a collection tool that can help us collect the right data for memory analysis. 
 
 
