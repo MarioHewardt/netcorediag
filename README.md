@@ -18,22 +18,15 @@ Most of the scenarios below are implemented using a simple webapi with methods t
 Please note that you have to be using at least preview 5 for most of the capabilities to work. 
 
 
-#### Installing the diagnostics tools
+### [Installing the diagnostics tools](https://github.com/MarioHewardt/netcorediag/blob/master/installing_the_diagnostics_tools.md)
 
+### [Scenario - App is leaking memory (eventual crash)](https://github.com/MarioHewardt/netcorediag/blob/master/app_is_leaking_memory_eventual_crash.md)
 
+### Scenario - App is running slow (due to high CPU)
 
+### Scenario - App is running slow (due to slow dependency)
 
-#### Scenario - App is running slow (due to high CPU)
-In this scenario, we have a basic webapi that exposes a method that results in CPU churn. 
-
-
-#### Scenario - App is running slow (due to slow dependency)
-
-
-#### Scenario - App is leaking memory (eventual crash)
-
-
-#### Scenario - App is experiencing intermitten crash 
+### Scenario - App is experiencing intermittent crash 
 
 
 

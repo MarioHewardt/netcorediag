@@ -4,7 +4,7 @@ http://localhost:5000/api/diagscenario/memleak/{kb}
 
 In this scenario, the endpoint will slowly start leaking memory (amount specified by {kb}) and eventually will result in an out of memory exception. In order to diagnose this scenario, we need several key pieces of diagnostics data.
 
-##### Memory counters
+### Memory counters
 Before we dig into collecting diagnostics data to help us root cause this scenario, we need to convince ourselves that what we are actually seeing is a memory leak (memory growth). On Windows we could use the myriad of .NET performance counters, but what about on Linux? It turns out .net core has been instrumented to expose metrics from the runtime and we can use the dotnet-counters tool to get at this information (please see 'Installing the diagnostics tools' section). 
 
 Next, lets run the webapi (dotnet run) and before hitting the above URL that will cause the leak, lets check our managed memory counters:
@@ -25,7 +25,7 @@ Re-run the dotnet-counters command. We should see an increase in memory usage as
 At this point, we can safely say that memory is leaking (or at the very least is growing and doesn't seem to come back down once request is finished). The next step is now to run a collection tool that can help us collect the right data for memory analysis. 
 
 
-##### Core dump generation
+### Core dump generation
 Most commonly when analyzing possible memory leaks, we need access to as much of the apps memory as possible. We can then analyze the memory contents and relationships between objects to create theories on why memory is not being freed. A very common diagnostics data source is a memory dump (Win) and the equivalent core dump (on Linux). In order to generate a core dump of a .net core application, we can use the dotnet-dump tool (please see 'Installing the diagnostics tools' section). Using the previous webapi run, run the following command to generate a core dump:
 
 `sudo ./dotnet-dump collect -p 4807`
@@ -33,7 +33,7 @@ Most commonly when analyzing possible memory leaks, we need access to as much of
 4807 is the process identifier which can be found using dotnet-trace list-processes. The result is a core dump located in the same folder. Please note that to generate core dumps, dotnet-dump requires sudo.  
 
 
-##### Analyzing the core dump
+### Analyzing the core dump
 Now that we have a core dump generated, what options do we have to analyze the core dump? On Windows, we would typically use a combination of WinDBG and SOS and the same strategy applies to Linux (albeit with a different tool set). On Linux, there are a couple of different options with some caveats:
 
 * LLDB/SOS. LLDB is the Linux debugger that must be used when debugging using SOS. 
@@ -56,15 +56,15 @@ You will be presented with a prompt where you can enter SOS commands. Commonly, 
 
 The (partial) output can be seen below:
 
-![alt text](C:\Workzone\netcorediag\dumpheap.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/dumpheap.png)
 
 Here we can see that we have quite a few strings laying around (as well as instances of Customer and Customer[]). We can now use the gcroot command on one of the string instances to see how/why the object is rooted:
 
-![alt text](C:\Workzone\netcorediag\gcroot.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/gcroot.png)
 
 The string instance appears to be rooted from top level Processor object which in turn references a cache. We can continue dumping out objects to see how much the cache is holding on to:
 
-![alt text](C:\Workzone\netcorediag\cache.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cache.png)
 
 From here we can now try and back-track (from code) why the cache seems to be growing in an unbound fashion. 
 
