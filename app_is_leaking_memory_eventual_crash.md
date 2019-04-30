@@ -56,7 +56,7 @@ You will be presented with a prompt where you can enter SOS commands. Commonly, 
 
 The (partial) output can be seen below:
 
-![alt text](C:\Workzone\netcorediag\dumpheap.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/dumpheap.png)
 
 Here we can see that we have quite a few strings laying around (as well as instances of Customer and Customer[]). We can now use the gcroot command on one of the string instances to see how/why the object is rooted:
 
