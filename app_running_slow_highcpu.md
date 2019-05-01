@@ -15,7 +15,7 @@ Lets run the webapi (dotnet run) and before hitting the above URL that will caus
 
 The output should be similar to the below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpulow.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpulow.jpg)
 
 Here we can see that right after startup, the CPU is not being consumed at all (0%). 
 
@@ -23,7 +23,7 @@ Now, let's hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000)
 
 Re-run the dotnet-counters command. We should see an increase in CPU usage as shown below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpuhigh.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpuhigh.jpg)
 
 Throughout the execution of that request, CPU hovers at around 30%.  
 
@@ -31,51 +31,48 @@ Note that this shows all the counters. If you want to specify individual counter
 
 `dotnet-counters monitor System.Runtime[cpu-usage] -p 22884 --refresh-interval 1`
 
-At this point, we can safely say that memory is leaking (or at the very least is growing and doesn't seem to come back down once request is finished). The next step is now to run a collection tool that can help us collect the right data for memory analysis. 
+At this point, we can safely say that CPU is running a little hotter than we expect. The next step is now to run a collection tool that can help us collect the right data for the CPU analysis.  
 
 
-### Core dump generation
-Most commonly when analyzing possible memory leaks, we need access to as much of the apps memory as possible. We can then analyze the memory contents and relationships between objects to create theories on why memory is not being freed. A very common diagnostics data source is a memory dump (Win) and the equivalent core dump (on Linux). In order to generate a core dump of a .net core application, we can use the dotnet-dump tool (please see 'Installing the diagnostics tools' section). Using the previous webapi run, run the following command to generate a core dump:
+### Trace generation
+Commonly when analyzing slow request (such as due to high CPU), we need a diagnostics tool that can give us insight into what our code is doing at frequent intervals. A very common diagnostics data source is a profiler. In order to generate profiler traces of a .net core application, we can use the dotnet-trace tool (please see 'Installing the diagnostics tools' section). Using the previous webapi, hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000) again and while its running within the 1 minute request, run the following:
 
-`sudo ./dotnet-dump collect -p 4807`
+`dotnet-trace collect -p 2266  --providers Microsoft-DotNETCore-SampleProfiler`
 
-4807 is the process identifier which can be found using dotnet-trace list-processes. The result is a core dump located in the same folder. Please note that to generate core dumps, dotnet-dump requires sudo.  
+2266 is the process identifier which can be found using dotnet-trace list-processes. Let dotnet-trace run for about 20-30 seconds and then hit enter to exit the collection. 
+The result is a netperf file located in the same folder. netperf files are a great way to use existing analysis tools on Windows (such as PerfView) to diagose performance problems. 
+
+If you  are more familiar with existing performance tools on Linux, .net core is also instrumented to allow you to make use of those tools. Here, we will illustrate how you can use the 'perf' tool to generate traces that can be used on Linux to diagnose performance problems. Exit the previous instance of the webapi and set the following in the terminal:
+
+`export COMPlus_PerfMapEnabled=1`
+
+Next, re-launch the webapi. This step is required to get more legible frames in the traces. 
+
+In the same terminal, run the webapi again, hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000) again and while its running within the 1 minute request, run the following:
+
+`sudo perf record -p 2266 -g`
+
+This will start the perf collection process. Let it run for about 20-30 seconds and then hit CTRL-C to exit the collection process. The output should tell you how many MBs of perf data was written.  
 
 
-### Analyzing the core dump
-Now that we have a core dump generated, what options do we have to analyze the core dump? On Windows, we would typically use a combination of WinDBG and SOS and the same strategy applies to Linux (albeit with a different tool set). On Linux, there are a couple of different options with some caveats:
+### Analyzing the trace
+When it comes to analyzing the profiler trace generated in the previous step, you have two options depending on if you generated a netperf file or used the native perf command in Linux. 
 
-* LLDB/SOS. LLDB is the Linux debugger that must be used when debugging using SOS. 
-* dotnet-dump analyze <dump_path> provides an SOS REPL experience on the specified core file. 
+Starting with the netperf file, you need to transfer the netperf file to a Windows machine and use PerfView to analyze the trace as shown below.
 
-In both cases, you have to be careful to roughly match the environment up with the production server. For example, if I am running .net core preview 5 on Ubuntu 16.04 the core dump must be analyzed on the same architecture and environment. 
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/perfview.jpg)
 
-For the LLDB/SOS experience, please see - https://github.com/dotnet/coreclr/blob/master/Documentation/building/debugging-instructions.md.
+If you generated the traces using the Linux perf command, you can use the same perf command to see the output of the trace.
 
-To use the dotnet-dump tool to analyze the dump please run:
+`sudo perf report -f`
 
-`dotnet-dump analyze core_20190430_185145`
-(where core_20190430_185145 is the name of the core dump you want to analyze)
+Alternatively, you can also generate a flamegrah by using the following commands:
 
-Note: If you see an error complaining that libdl.so cannot be found, you may have to install the libc6-dev package. 
+` git clone --depth=1 https://github.com/BrendanGregg/FlameGraph`
+`sudo perf script | FlameGraph/stackcollapse-perf.pl | FlameGraph/flamegraph.pl > flamegraph.svg`
 
-You will be presented with a prompt where you can enter SOS commands. Commonly, the first thing we want to look at is the overall state of the managed heap by running:
+This will generate a flamegraph.svg that you can view in the browser to investigate the performance problem:
 
-`dumpheap -stat`
-
-The (partial) output can be seen below:
-
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/dumpheap.png)
-
-Here we can see that we have quite a few strings laying around (as well as instances of Customer and Customer[]). We can now use the gcroot command on one of the string instances to see how/why the object is rooted:
-
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/gcroot.png)
-
-The string instance appears to be rooted from top level Processor object which in turn references a cache. We can continue dumping out objects to see how much the cache is holding on to:
-
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cache.png)
-
-From here we can now try and back-track (from code) why the cache seems to be growing in an unbound fashion. 
 
 
 
