@@ -68,7 +68,7 @@ If you generated the traces using the Linux perf command, you can use the same p
 
 Alternatively, you can also generate a flamegrah by using the following commands:
 
-` git clone --depth=1 https://github.com/BrendanGregg/FlameGraph`
+`git clone --depth=1 https://github.com/BrendanGregg/FlameGraph`
 `sudo perf script | FlameGraph/stackcollapse-perf.pl | FlameGraph/flamegraph.pl > flamegraph.svg`
 
 This will generate a flamegraph.svg that you can view in the browser to investigate the performance problem:
