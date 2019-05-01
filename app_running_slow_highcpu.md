@@ -1,36 +1,35 @@
-# App is leaking memory (eventual crash/hang)
+# App is running slow (due to high CPU)
 
-http://localhost:5000/api/diagscenario/memleak/{kb}
+http://localhost:5000/api/diagscenario/highcpu/{milliseconds}
 
-In this scenario, the endpoint will slowly start leaking memory (amount specified by {kb}) and eventually will result in an out of memory exception. In order to diagnose this scenario, we need several key pieces of diagnostics data.
+In this scenario, the endpoint will consume substantial amount of CPU for a duration specified by {milliseconds}. In order to diagnose this scenario, we need several key pieces of diagnostics data.
 
-### Memory counters
-Before we dig into collecting diagnostics data to help us root cause this scenario, we need to convince ourselves that what we are actually seeing is a memory leak (memory growth). On Windows we could use the myriad of .NET performance counters, but what about on Linux? It turns out .net core has been instrumented to expose metrics from the runtime and we can use the dotnet-counters tool to get at this information (please see 'Installing the diagnostics tools' section). 
+### CPU counters
+Before we dig into collecting diagnostics data to help us root cause this scenario, we need to convince ourselves that what we are actually seeing is a high CPU condition. On Windows we could use the myriad of .NET performance counters, but what about on Linux? It turns out .net core has been instrumented to expose metrics from the runtime and we can use the dotnet-counters tool to get at this information (please see 'Installing the diagnostics tools' section). 
 
-Next, lets run the webapi (dotnet run) and before hitting the above URL that will cause the leak, lets check our managed memory counters:
+Lets run the webapi (dotnet run) and before hitting the above URL that will cause the high CPU condition, lets check our CPU counters:
 
-`dotnet-counters monitor gc-heap-size --refresh-interval 1 -p 4807`
+`dotnet-counters monitor --refresh-interval 1 -p 22884`
 
-4807 is the process identifier which can be found using dotnet-trace list-processes. The refresh-interval is the number of seconds before refreshes. 
+22884 is the process identifier which can be found using dotnet-trace list-processes. The refresh-interval is the number of seconds before refreshes. 
 
 The output should be similar to the below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/counterlow.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpulow.png)
 
-Here we can see that right after startup, the managed heap memory is 4MB. 
+Here we can see that right after startup, the CPU is not being consumed at all (0%). 
 
-Now, let's hit the URL (http://localhost:5000/api/diagscenario/memleak/200000)
+Now, let's hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000)
 
-Re-run the dotnet-counters command. We should see an increase in memory usage as shown below:
+Re-run the dotnet-counters command. We should see an increase in CPU usage as shown below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/counterhigh.png)
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpuhigh.png)
 
-Memory has now grown to around 265MB. 
+Throughout the execution of that request, CPU hovers at around 30%.  
 
 Note that this shows all the counters. If you want to specify individual counters please use the System.Private[counter1, counter2,...] syntax. For example, to display just the gc-heap-counter, use:
 
-`dotnet-counters monitor System.Runtime[gc-heap-size] --refresh-interval 1 -p 4923`
-
+`dotnet-counters monitor System.Runtime[cpu-usage] -p 22884 --refresh-interval 1`
 
 At this point, we can safely say that memory is leaking (or at the very least is growing and doesn't seem to come back down once request is finished). The next step is now to run a collection tool that can help us collect the right data for memory analysis. 
 
