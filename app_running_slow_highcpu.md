@@ -73,7 +73,7 @@ Alternatively, you can also generate a flamegrah by using the following commands
 
 This will generate a flamegraph.svg that you can view in the browser to investigate the performance problem:
 
-
+![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/flamegraph.jpg)
 
 
 
