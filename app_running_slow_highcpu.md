@@ -39,15 +39,26 @@ At this point, we can safely say that CPU is running a little hotter than we exp
 
 
 ### Trace generation
-Commonly when analyzing slow request (such as due to high CPU), we need a diagnostics tool that can give us insight into what our code is doing at frequent intervals. A very common diagnostics data source is a profiler. In order to generate profiler traces of a .net core application, we can use the dotnet-trace tool (please see 'Installing the diagnostics tools' section). Using the previous webapi, hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000) again and while its running within the 1 minute request, run the following:
+Commonly when analyzing slow request (such as due to high CPU), we need a diagnostics tool that can give us insight into what our code is doing at frequent intervals. A very common diagnostics data source is a profiler. There are a few different options in terms of profilers and depending on which platform you plan on analyzing the trace data on. 
+
+#### If you plan on capturing trace data that can be viewed on a Windows machine...
+In order to generate profiler traces of a .net core application, we can use the dotnet-trace tool (please see 'Installing the diagnostics tools' section). Using the previous webapi, hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000) again and while its running within the 1 minute request, run the following:
 
 > ```bash
 > dotnet-trace collect -p 2266  --providers Microsoft-DotNETCore-SampleProfiler
 > ```
 
-2266 is the process identifier which can be found using dotnet-trace list-processes. Let dotnet-trace run for about 20-30 seconds and then hit enter to exit the collection. 
-The result is a netperf file located in the same folder. netperf files are a great way to use existing analysis tools on Windows (such as PerfView) to diagose performance problems. 
+2266 is the process identifier which can be found using dotnet-trace list-processes. Let dotnet-trace run for about 20-30 seconds and then hit enter to exit the collection. The result is a netperf file located in the same folder. netperf files are a great way to use existing analysis tools on Windows (such as PerfView) to diagose performance problems. 
 
+Alternatively, you can get the perf and LTTng trace data in netperf format by using the perfcollect tool (please see Installing the tools section). Once installed, run the following command:
+
+> ```bash
+> sudo ./perfcollect collect sampleTrace
+> ```
+
+Reproduce the problem and when done, hit CTRL-C to exit the perfcollect tool. You will see a sampleTrace.trace.zip file that you can view using Perfview on a Windows machine. 
+
+#### If you plan on capturing trace data that can be viewed on a Linux machine...
 If you  are more familiar with existing performance tools on Linux, .net core is also instrumented to allow you to make use of those tools. Here, we will illustrate how you can use the 'perf' tool to generate traces that can be used on Linux to diagnose performance problems. Exit the previous instance of the webapi and set the following in the terminal:
 
 > ```bash
@@ -63,15 +74,6 @@ In the same terminal, run the webapi again, hit the URL (http://localhost:5000/a
 > ```
 
 This will start the perf collection process. Let it run for about 20-30 seconds and then hit CTRL-C to exit the collection process. The output should tell you how many MBs of perf data was written.  
-
-Alternatively, you can get the perf and LTTng trace data in netperf format by using the perfcollect tool (please see Installing the tools section). Once installed, run the following command:
-
-> ```bash
-> sudo ./perfcollect collect sampleTrace
-> ```
-
-Reproduce the problem and when done, hit CTRL-C to exit the perfcollect tool. You will see a sampleTrace.trace.zip file that you can view using Perfview on a Windows machine. 
-
 
 ### Analyzing the trace
 When it comes to analyzing the profiler trace generated in the previous step, you have two options depending on if you generated a netperf file or used the native perf command in Linux. 
