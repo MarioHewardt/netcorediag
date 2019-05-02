@@ -17,7 +17,7 @@ Next, lets run the webapi (dotnet run) and before hitting the above URL that wil
 
 The output should be similar to the below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/counterlow.png)
+![alt text](https://user-images.githubusercontent.com/15442480/57110730-6429fb80-6cee-11e9-8bd1-4f37496c70fe.png)
 
 Here we can see that right after startup, the managed heap memory is 4MB. 
 
@@ -25,7 +25,7 @@ Now, let's hit the URL (http://localhost:5000/api/diagscenario/memleak/200000)
 
 Re-run the dotnet-counters command. We should see an increase in memory usage as shown below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/counterhigh.png)
+![alt text](https://user-images.githubusercontent.com/15442480/57110722-596f6680-6cee-11e9-9707-954bcbe21312.png)
 
 Memory has now grown to around 265MB. 
 
@@ -75,15 +75,15 @@ You will be presented with a prompt where you can enter SOS commands. Commonly, 
 
 The (partial) output can be seen below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/dumpheap.png)
+![alt text](https://user-images.githubusercontent.com/15442480/57110756-7d32ac80-6cee-11e9-9b80-2ce700e7a2f1.png)
 
 Here we can see that we have quite a few strings laying around (as well as instances of Customer and Customer[]). We can now use the gcroot command on one of the string instances to see how/why the object is rooted:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/gcroot.png)
+![alt text](https://user-images.githubusercontent.com/15442480/57110770-8face600-6cee-11e9-8eea-608b59442058.png)
 
 The string instance appears to be rooted from top level Processor object which in turn references a cache. We can continue dumping out objects to see how much the cache is holding on to:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cache.png)
+![alt text](https://user-images.githubusercontent.com/15442480/57110703-4b214a80-6cee-11e9-8887-02c25424a0ad.png)
 
 From here we can now try and back-track (from code) why the cache seems to be growing in an unbound fashion. 
 
