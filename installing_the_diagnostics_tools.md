@@ -5,7 +5,9 @@ Depending on the diagnostics scenario you will use one or more of the tools belo
 ### dotnet-counters
 In the .NET full/Windows world, we have a myriad of performance counters that can be used to triage and diagnose production issues. For .Net core we have a similar and cross platform story centered around a tool called dotnet-counters. To install the tool, run the following command:
 
-```dotnet tool install --global dotnet-counters --version 1.0.3-preview5.19228.1 --add-source https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json`
+> ```bash
+> dotnet tool install --global dotnet-counters --version 1.0.3-preview5.19228.1 --add-source https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json`
+> ```
 
 
 ### dotnet-trace
@@ -21,7 +23,9 @@ Please note, the dotnet-trace tool is version independent but as of right now (p
 ### dotnet-dump
 In order to generate core dumps for .net core apps, you can use the dotnet-dump tool. To install the tool, run the following command:
 
-```dotnet tool install --global dotnet-dump --version 1.0.3-preview5.19228.1 --add-source https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json`
+> ```bash
+> dotnet tool install --global dotnet-dump --version 1.0.3-preview5.19228.1 --add-source https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+> ```
 
 Please note, the dotnet-trace tool is version independent but as of right now (preview 5) it requires the 2.1 runtime to be installed to work. This will be fixed moving forward.
 
@@ -29,12 +33,16 @@ Please note, the dotnet-trace tool is version independent but as of right now (p
 ### dotnet-symbol
 In order to debug core dumps, the correct symbols need to be available. The dotnet-symbol tool allows you to point to a core dump and it will automatically download the symbols for you. To install the tool, run:
 
-`dotnet tool install -g dotnet-symbol`
+> ```bash
+> dotnet tool install -g dotnet-symbol
+> ```
 
 ### perfcollect
 Thet .NET core runtime is instrumented for both perf and LTTng. To facilitate easier collection of both tracing technologies there is a tool called perfcollect. Perfcollect will output the joint trace data into a netperf file that can be analyzed using PerfView on Windows. To install the tool run the following commands:
 
-`curl -OL http://aka.ms/perfcollect`
-`chmod +x perfcollect`
-`sudo ./perfcollect install`
+> ```
+> curl -OL http://aka.ms/perfcollect
+> chmod +x perfcollect
+> sudo ./perfcollect install
+> ```
 
