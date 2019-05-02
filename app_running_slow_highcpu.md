@@ -41,6 +41,7 @@ At this point, we can safely say that CPU is running a little hotter than we exp
 ### Trace generation
 Commonly when analyzing slow request (such as due to high CPU), we need a diagnostics tool that can give us insight into what our code is doing at frequent intervals. A very common diagnostics data source is a profiler. There are a few different options in terms of profilers and depending on which platform you plan on analyzing the trace data on. 
 
+
 #### If you plan on capturing trace data that can be viewed on a Windows machine...
 In order to generate profiler traces of a .net core application, we can use the dotnet-trace tool (please see 'Installing the diagnostics tools' section). Using the previous webapi, hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000) again and while its running within the 1 minute request, run the following:
 
@@ -57,6 +58,7 @@ Alternatively, you can get the perf and LTTng trace data in netperf format by us
 > ```
 
 Reproduce the problem and when done, hit CTRL-C to exit the perfcollect tool. You will see a sampleTrace.trace.zip file that you can view using Perfview on a Windows machine. 
+
 
 #### If you plan on capturing trace data that can be viewed on a Linux machine...
 If you  are more familiar with existing performance tools on Linux, .net core is also instrumented to allow you to make use of those tools. Here, we will illustrate how you can use the 'perf' tool to generate traces that can be used on Linux to diagnose performance problems. Exit the previous instance of the webapi and set the following in the terminal:
