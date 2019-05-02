@@ -17,7 +17,7 @@ Lets run the webapi (dotnet run) and before hitting the above URL that will caus
 
 The output should be similar to the below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpulow.jpg)
+![alt text](https://user-images.githubusercontent.com/15442480/57110746-75730800-6cee-11e9-81a8-1c253aef37ce.jpg)
 
 Here we can see that right after startup, the CPU is not being consumed at all (0%). 
 
@@ -25,7 +25,7 @@ Now, let's hit the URL (http://localhost:5000/api/diagscenario/highcpu/60000)
 
 Re-run the dotnet-counters command. We should see an increase in CPU usage as shown below:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/cpuhigh.jpg)
+![alt text](https://user-images.githubusercontent.com/15442480/57110736-6be9a000-6cee-11e9-86b6-6e128318a267.jpg)
 
 Throughout the execution of that request, CPU hovers at around 30%.  
 
@@ -82,7 +82,7 @@ When it comes to analyzing the profiler trace generated in the previous step, yo
 
 Starting with the netperf file, you need to transfer the netperf file to a Windows machine and use PerfView to analyze the trace as shown below.
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/perfview.jpg)
+![alt text](https://user-images.githubusercontent.com/15442480/57110777-976c8a80-6cee-11e9-9cf7-407a01a08b1d.jpg)
 
 If you generated the traces using the Linux perf command, you can use the same perf command to see the output of the trace.
 
@@ -99,7 +99,7 @@ Alternatively, you can also generate a flamegrah by using the following commands
 
 This will generate a flamegraph.svg that you can view in the browser to investigate the performance problem:
 
-![alt text](https://github.com/MarioHewardt/netcorediag/blob/master/flamegraph.jpg)
+![alt text](https://user-images.githubusercontent.com/15442480/57110767-87ed4180-6cee-11e9-98d9-9f1c908acfd5.jpg)
 
 
 
