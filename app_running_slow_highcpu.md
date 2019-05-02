@@ -64,6 +64,14 @@ In the same terminal, run the webapi again, hit the URL (http://localhost:5000/a
 
 This will start the perf collection process. Let it run for about 20-30 seconds and then hit CTRL-C to exit the collection process. The output should tell you how many MBs of perf data was written.  
 
+Alternatively, you can get the perf and LTTng trace data in netperf format by using the perfcollect tool (please see Installing the tools section). Once installed, run the following command:
+
+> ```bash
+> sudo ./perfcollect collect sampleTrace
+> ```
+
+Reproduce the problem and when done, hit CTRL-C to exit the perfcollect tool. You will see a sampleTrace.trace.zip file that you can view using Perfview on a Windows machine. 
+
 
 ### Analyzing the trace
 When it comes to analyzing the profiler trace generated in the previous step, you have two options depending on if you generated a netperf file or used the native perf command in Linux. 
