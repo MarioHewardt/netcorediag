@@ -9,7 +9,9 @@ Before we dig into collecting diagnostics data to help us root cause this scenar
 
 Next, lets run the webapi (dotnet run) and before hitting the above URL that will cause the leak, lets check our managed memory counters:
 
-`dotnet-counters monitor gc-heap-size --refresh-interval 1 -p 4807`
+> ```bash
+> dotnet-counters monitor gc-heap-size --refresh-interval 1 -p 4807
+> ```
 
 4807 is the process identifier which can be found using dotnet-trace list-processes. The refresh-interval is the number of seconds before refreshes. 
 
@@ -29,8 +31,9 @@ Memory has now grown to around 265MB.
 
 Note that this shows all the counters. If you want to specify individual counters please use the System.Private[counter1, counter2,...] syntax. For example, to display just the gc-heap-counter, use:
 
-`dotnet-counters monitor System.Runtime[gc-heap-size] --refresh-interval 1 -p 4923`
-
+> ```bash
+> dotnet-counters monitor System.Runtime[gc-heap-size] --refresh-interval 1 -p 4923
+> ```
 
 At this point, we can safely say that memory is leaking (or at the very least is growing and doesn't seem to come back down once request is finished). The next step is now to run a collection tool that can help us collect the right data for memory analysis. 
 
@@ -38,7 +41,9 @@ At this point, we can safely say that memory is leaking (or at the very least is
 ### Core dump generation
 Most commonly when analyzing possible memory leaks, we need access to as much of the apps memory as possible. We can then analyze the memory contents and relationships between objects to create theories on why memory is not being freed. A very common diagnostics data source is a memory dump (Win) and the equivalent core dump (on Linux). In order to generate a core dump of a .net core application, we can use the dotnet-dump tool (please see 'Installing the diagnostics tools' section). Using the previous webapi run, run the following command to generate a core dump:
 
-`sudo ./dotnet-dump collect -p 4807`
+> ```bash
+> sudo ./dotnet-dump collect -p 4807
+> ```
 
 4807 is the process identifier which can be found using dotnet-trace list-processes. The result is a core dump located in the same folder. Please note that to generate core dumps, dotnet-dump requires sudo.  
 
@@ -55,14 +60,18 @@ For the LLDB/SOS experience, please see - https://github.com/dotnet/coreclr/blob
 
 To use the dotnet-dump tool to analyze the dump please run:
 
-`dotnet-dump analyze core_20190430_185145`
+> ```bash
+> dotnet-dump analyze core_20190430_185145
+> ```
 (where core_20190430_185145 is the name of the core dump you want to analyze)
 
 Note: If you see an error complaining that libdl.so cannot be found, you may have to install the libc6-dev package. 
 
 You will be presented with a prompt where you can enter SOS commands. Commonly, the first thing we want to look at is the overall state of the managed heap by running:
 
-`dumpheap -stat`
+> ```bash
+> dumpheap -stat
+> ```
 
 The (partial) output can be seen below:
 
